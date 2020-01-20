@@ -145,21 +145,5 @@ p + geom_point() +
   scale_x_log10() +
   geom_smooth(method = "gam")
 
-##EXERCISE 2##
-
-library(readr)
-
-urlfile = 'https://raw.githubusercontent.com/MSUDataAnalytics/SSC442/master/assets/bank.csv'
-bank = read_csv(url(urlfile))
-head(bank)
-
-balance_duration = ggplot(data=bank,
-                          mapping=aes(x=job, y=balance, color = education))
-
-balance_duration + geom_jitter() +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))
-
-
-
 
 
