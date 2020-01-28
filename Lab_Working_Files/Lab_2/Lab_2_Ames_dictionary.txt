@@ -1,0 +1,42 @@
+This file is used as a dictionary to describe the Ames data set of Integer values.
+
+Data Structure
+Data Name: name as stored in R, Values: (list of values it may take on), Desc.: description of data
+
+Data Name: Id, Values: (1,2,3,4...), Desc.: Unique Identifier for our data
+Data Name: LotFrontage, Values: (square footage), Desc.: Front lot size
+Data Name: LotArea, Values: (+), Desc.: Total lot area
+Data Name: OverallQual, Values: (1-10), Desc.: Quality of the house
+Data Name: OverallCond, Values: (1-10), Desc.: Condition of the house
+Data Name: YearBuilt, Values: (year), Desc.: Year the house was built
+Data Name: YearRemodAdd, Values: (year), Desc.: Year the remodel was added, same as year built if no addition
+Data Name: MasVnrArea, Values: (area), Desc.:
+Data Name: BsmtFinSF1, Values: (square footage), Desc.: Finished basement square footage 1st room
+Data Name: BsmtFinSF2, Values: (square footage), Desc.: Finished basement square footage 2nd room
+Data Name: BsmtUnfSF, Values: (square footage), Desc.: Unfinished basement square footage
+Data Name: TotalBsmtSF, Values: (square footage), Desc.: Total basement square footage, sum of previous 3 rooms
+Data Name: X1stFlrSF, Values: (square footage), Desc.: First floor square footage
+Data Name: X2ndFlrSF, Values: (square footage), Desc.: Second floor square footage
+Data Name: LowQualFinSF, Values: (square footage), Desc.: ?
+Data Name: GrLivArea, Values: (square footage), Desc.: Living room square foot area
+Data Name: BsmtFullBath, Values: (0,1,2...), Desc.: Count of full bathrooms in the basement
+Data Name: BsmtHalfBath, Values: (0,1,2...), Desc.: Count of half bathrooms in the basement
+Data Name: FullBath, Values: (0,1,2...), Desc.: Total count of full bathrooms
+Data Name: HalfBath, Values: (0,1,2...), Desc.: Total count of half bathrooms
+Data Name: BedroomAbvGr, Values: (0,1,2...), Desc.: Count of bedrooms above ground
+Data Name: KitchenAbvGr, Values: (0,1,2...), Desc.: Count of kitchens above ground
+Data Name: TotRmsAbvGrd, Values: (0,1,2...), Desc.: Count of total room above ground
+Data Name: Fireplaces, Values: (0,1,2...), Desc.: Count of fireplaces
+Data Name: GarageYrBlt, Values: (year), Desc.: Year the garage is built
+Data Name: GarageCars, Values: (0,1,2...), Desc.: Cars the garage can hold
+Data Name: GarageArea, Values: (0,1,2...), Desc.: Total garage area
+Data Name: WoodDeckSF, Values: (square footage), Desc.: Wooden deck square footage
+Data Name: OpenPorchSF, Values: (square footage), Desc.: Open porch square footage
+Data Name: EnclosedPorch, Values: (square footage), Desc.: Enclosed porch square footage
+Data Name: X3SsnPorch, Values: (square footage), Desc.: 3rd floor Seasonal porch square footage
+Data Name: ScreenPorch, Values: (square footage), Desc.: Screened in porch square footage
+Data Name: PoolArea, Values: (square footage), Desc.: Pool area square footage, 0 if no pool
+Data Name: MiscVal, Values: (?), Desc.: ?
+Data Name: MoSold, Values: (month), Desc.: Month the house was sold
+Data Name: YrSold, Values: (year), Desc.: Year the house was sold
+Data Name: SalePrice, Values: (Dollars), Desc.: Sale price of the house
