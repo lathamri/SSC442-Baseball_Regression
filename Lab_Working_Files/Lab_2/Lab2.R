@@ -59,7 +59,7 @@ ameslist <- cbind(ameslist, GarageTemp)
 options(original_options)
 # Now we see the Bind gives us no trouble and we can change the options back so they don't mess with 
 # any of our later code.
-
+unique(GarageTemp)
 # Now we change our values again to indicate which of these garage types are outside
 
 ## This doesn't work, asking Bushong Tuesday what's up with it
@@ -75,17 +75,44 @@ Ames = ameslist[int_type=='integer']
 # Drop some columns that don't have meaning
 Ames$MSSubClass = NULL
 # 2. Produce a scatterplot matrix of 12 variables
-Scatter_Ames = pairs(Ames[,c(3,4,5,12,13,14,19,20,23,26,32,33)], pch = 19,
+Scatter_Ames = pairs(Ames[,c(3,4,12,13,14,16,19,20,23,26,32,33)], pch = 19,
                      lower.panel = NULL)
 # 3. Produce a correlation matrix of the chosen variables
 # Shows correlations for our chosen variables to SalesPrice
-cor_matrix = round(cor(Ames[ ,c(3,4,5,12,13,14,19,20,23,26,32,33)]), digits=3)
+cor_matrix = round(cor(Ames[,c(3,4,12,13,14,16,19,20,23,26,32,33)]), digits=3)
 # 4. Make a scatter plot of SalePrice to GrLivArea and use abline for a linear fit
 p = ggplot(data=Ames,
            mapping = aes(x=Ames$GrLivArea, y=Ames$SalePrice))
 
 # abline doesn't wanna work for me, look for fixes if you can
-p  + geom_point() + geom_abline()
+p + geom_abline(color='Red')  + geom_point()
+
+# MUST FIX EXERCISE 1 STILL
+
+# Modeling our data, Linear Model
+
+attach(Ames)
+lm.fit = lm(SalePrice ~ GrLivArea)
+lm.fit
+
+# GrLivArea is telling us about the size of the family room I think. It has a strong correlation with
+# all of the above ground room counts, and square foot data as well.
+
+plot(lm.fit)
+
+summary(lm.fit)
+
+# Plotting with more informed models
+lm.fit = lm(SalePrice ~ GrLivArea + LotArea)
+
+summary(lm.fit)
+
+plot(lm.fit)
+
+# Adding lot area should help us get better understandings of SalePrice which is oddly enouh not what we get.
+# When we add in lotarea we actually get a lower F-stat and only a very small rise in R-Squared. This 
+# indicates that our adding the variable is not a good explanatory variable for SalePrice.
+
 
 
 
