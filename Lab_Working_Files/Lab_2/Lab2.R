@@ -121,8 +121,4 @@ plot(lm.fit)
 
 # Adding lot area should help us get better understandings of SalePrice which is oddly enouh not what we get.
 # When we add in lotarea we actually get a lower F-stat and only a very small rise in R-Squared. This 
-# indicates that our adding the variable is not a good explanatory variable for SalePrice.
-
-
-ameslist$Alley <- NULL
-jack <- na.omit(ameslist)
+# indicates that our adding the variable is not a good explanatory variable for SalePrice
