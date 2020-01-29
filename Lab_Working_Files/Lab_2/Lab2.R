@@ -63,7 +63,13 @@ unique(GarageTemp)
 # Now we change our values again to indicate which of these garage types are outside
 
 ## This doesn't work, asking Bushong Tuesday what's up with it
-ameslist$GarageOutside <- ifelse(ameslist$GarageTypeDetchd == 1 | ameslist$GarageTypeCarPort == 1, 1, 0)
+ameslist$GarageOutside <- ifelse(ameslist$`ameslist$GarageTypeDetchd` == 1 | ameslist$`ameslist$GarageTypeCarPort` == 1, 1, 0)
+unique(ameslist$GarageOutside)
+
+vector = c(which(is.na(ameslist$GarageOutside)))
+
+ameslist = ameslist[-c( vector ),]
+
 unique(ameslist$GarageOutside)
 
 ## Exercise 1
@@ -75,19 +81,23 @@ Ames = ameslist[int_type=='integer']
 # Drop some columns that don't have meaning
 Ames$MSSubClass = NULL
 # 2. Produce a scatterplot matrix of 12 variables
-Scatter_Ames = pairs(Ames[,c(3,4,12,13,14,16,19,20,23,26,32,33)], pch = 19,
+Scatter_Ames = pairs(Ames[,c(37,3,4,12,13,14,16,19,20,23,26,32,33)], pch = 19,
                      lower.panel = NULL)
 # 3. Produce a correlation matrix of the chosen variables
 # Shows correlations for our chosen variables to SalesPrice
-cor_matrix = round(cor(Ames[,c(3,4,12,13,14,16,19,20,23,26,32,33)]), digits=3)
+cor_matrix = round(cor(Ames[,c(37,3,4,12,13,14,16,19,20,23,26,32,33)]), digits=3)
+# Yes this correlation matrix generally matches with my prior beleifs. Most are highly correlated meaning that they 
+# have a large positive effect on Sales Price. The ones with a smaller correlation still have an effect just a smaller
+# effect, but still measurable
+
 # 4. Make a scatter plot of SalePrice to GrLivArea and use abline for a linear fit
 p = ggplot(data=Ames,
            mapping = aes(x=Ames$GrLivArea, y=Ames$SalePrice))
 
-# abline doesn't wanna work for me, look for fixes if you can
-p + geom_abline(color='Red')  + geom_point()
+j = lm(Ames$GrLivArea ~ Ames$SalePrice)
 
-# MUST FIX EXERCISE 1 STILL
+# abline doesn't wanna work for me, look for fixes if you can
+p + geom_smooth(method = lm) + geom_point()
 
 # Modeling our data, Linear Model
 
@@ -114,8 +124,5 @@ plot(lm.fit)
 # indicates that our adding the variable is not a good explanatory variable for SalePrice.
 
 
-
-
-
-
-
+ameslist$Alley <- NULL
+jack <- na.omit(ameslist)
