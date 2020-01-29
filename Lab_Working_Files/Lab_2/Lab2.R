@@ -78,7 +78,7 @@ unique(ameslist$GarageOutside)
 int_type = lapply(ameslist, class)
 # Generates a dataframe from ames data with all integer type data
 Ames = ameslist[int_type=='integer']
-# Drop some columns that don't have meaning
+# Drop columns that don't have meaning
 Ames$MSSubClass = NULL
 # 2. Produce a scatterplot matrix of 12 variables
 Scatter_Ames = pairs(Ames[,c(37,3,4,12,13,14,16,19,20,23,26,32,33)], pch = 19,
@@ -96,7 +96,6 @@ p = ggplot(data=Ames,
 
 j = lm(Ames$GrLivArea ~ Ames$SalePrice)
 
-# abline doesn't wanna work for me, look for fixes if you can
 p + geom_smooth(method = lm) + geom_point()
 
 # Modeling our data, Linear Model
@@ -122,3 +121,97 @@ plot(lm.fit)
 # Adding lot area should help us get better understandings of SalePrice which is oddly enouh not what we get.
 # When we add in lotarea we actually get a lower F-stat and only a very small rise in R-Squared. This 
 # indicates that our adding the variable is not a good explanatory variable for SalePrice
+
+## Exercise 2
+# 1. Make a simple linear model of garage type on sale price
+GOonSP = lm(SalePrice~GarageOutside, data=ameslist)
+GOonSP
+# 2. Full model on SalePrice
+FMonSP = lm(SalePrice~., data=Ames)
+summary(FMonSP)
+
+# The largest t-value's here are are related to the general size of the house or the quality
+# of the amenities. For example the poolarea tells us there is a pool and that it's 
+# influential on the price. Fireplaces are nearly at a t-value of 2 and the rest are all 
+# about size, such as rooms above ground, garage cars, and the largest being overall quality.
+# Most of the variables have no real effect outside of those.
+
+# 3. Using plot on our model
+plot(GOonSP)
+
+# This is sort of a silly plot because it has binary estimator variables. The plots do suggest, as expected,
+# that if you have a garage that is attached you'll have a house worth more money, but only a little.
+
+plot(FMonSP)
+# These plots are a little more telling and show a few outliers in the residual plots. The houses at
+# 1299 and 524 have large negative residuals with high fitted values indicating they don't behave well in our 
+# dataset and could be dropped out to give better estimates if we trust they are truly outliers.
+# In the residual vs leverage graph you'll see we have houses at 1183, 1299, and nearly 524 passing over
+# Cooks distance so we need to investigate them further, helping to lend some validity to the argument
+# for dropping them out.
+
+# 4. Finding interaction effects.
+ModifonSP = lm(SalePrice~LotArea + OverallQual + OverallCond + YearBuilt + 
+                 MasVnrArea + BsmtFinSF1 + X1stFlrSF + X2ndFlrSF + BsmtFullBath +
+                 BedroomAbvGr + KitchenAbvGr + TotRmsAbvGrd + GarageCars + WoodDeckSF +
+                 ScreenPorch, data=Ames)
+summary(ModifonSP)
+
+# Here we've slimmed down the data set to include only the points that have t-values above 2 until all values 
+# have this condition met. Now we will attempt to find interaction variables.
+# Here we try grouping overall quality and condition to find interaction effects.
+IntOQonOC = lm(SalePrice~LotArea + OverallQual*OverallCond + YearBuilt + 
+                 MasVnrArea + BsmtFinSF1 + X1stFlrSF + X2ndFlrSF + BsmtFullBath +
+                 BedroomAbvGr + KitchenAbvGr + TotRmsAbvGrd + GarageCars + WoodDeckSF +
+                 ScreenPorch, data=Ames)
+summary(IntOQonOC)
+
+# It doesn't do so well so we will remove this and see about linking the square footage of the floots
+IntX1onX2 = lm(SalePrice~LotArea + OverallQual + OverallCond + YearBuilt + 
+                 MasVnrArea + BsmtFinSF1 + X1stFlrSF + X2ndFlrSF + X1stFlrSF:X2ndFlrSF + BsmtFullBath +
+                 BedroomAbvGr + KitchenAbvGr + TotRmsAbvGrd + GarageCars + WoodDeckSF +
+                 ScreenPorch, data=Ames)
+summary(IntX1onX2)
+
+# Unfortunately this has much the same effect as before. So let's try interactions with above ground rooms
+
+IntAbvonAbv = lm(SalePrice~LotArea + OverallQual + OverallCond + YearBuilt + 
+                 MasVnrArea + BsmtFinSF1 + X1stFlrSF + X2ndFlrSF + BsmtFullBath +
+                 KitchenAbvGr + BedroomAbvGr:TotRmsAbvGrd+ GarageCars + WoodDeckSF +
+                 ScreenPorch, data=Ames)
+summary(IntAbvonAbv)
+
+# Here we may have one that works. It yields a higher F-stat than our original model and this 
+# makes sense because there is a direct correlation between bedrooms and total rooms above ground.
+# Both of these should be and are correlated with SalePrice. So we keep this.
+
+# 5. Let's try some transforms on the data
+# Perhaps overallqual should be counted with a square since it's such a big part of buying a house.
+TranXsqr = lm(SalePrice~LotArea + OverallQual + poly(OverallQual, 2) + OverallCond + YearBuilt + 
+                MasVnrArea + BsmtFinSF1 + X1stFlrSF + X2ndFlrSF + BsmtFullBath +
+                KitchenAbvGr + BedroomAbvGr:TotRmsAbvGrd+ GarageCars + WoodDeckSF +
+                ScreenPorch, data=Ames)
+
+summary(TranXsqr)
+# This gives a much higher F-stat and both have high t-vales so we should think of keeping this in our analysis.
+
+TranXlog = lm(SalePrice~LotArea + OverallQual + log(OverallQual) + OverallCond + YearBuilt + 
+                MasVnrArea + BsmtFinSF1 + X1stFlrSF + X2ndFlrSF + BsmtFullBath +
+                KitchenAbvGr + BedroomAbvGr:TotRmsAbvGrd+ GarageCars + WoodDeckSF +
+                ScreenPorch, data=Ames)
+summary(TranXlog)
+
+# This does less well, but is still an increase, so this is something we want to explore in the data.
+# What looks like is happening is the t-value is highly negative for the log while the regular variable
+# has a highly positive t-value. This probably tells us that they do the same job and because we include
+# them both it doubles up on them. Not what we want.
+
+TranXsqrt = lm(SalePrice~LotArea + OverallQual + sqrt(OverallQual) + OverallCond + YearBuilt + 
+                 MasVnrArea + BsmtFinSF1 + X1stFlrSF + X2ndFlrSF + BsmtFullBath +
+                 KitchenAbvGr + BedroomAbvGr:TotRmsAbvGrd+ GarageCars + WoodDeckSF +
+                 ScreenPorch, data=Ames)
+summary(TranXsqrt)
+# Similarly to the above value it looks like what it does is double up on both ends of the overallqual
+# and one of these should be dropped out.
+
+
