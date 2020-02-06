@@ -28,13 +28,45 @@ Ames = na.omit(Ames)
 # Makes forward selection plots up to complexity 15
 lm.fit.Comp1 = lm(SalePrice ~ GrLivArea, data=Ames)
 
+lm.fit.Comp2 = lm(SalePrice ~ GrLivArea + TotRmsAbvGrd, data=Ames)
+
 lm.fit.Comp3 = lm(SalePrice ~ GrLivArea + TotRmsAbvGrd + MasVnrArea, data=Ames)
+
+lm.fit.Comp4 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF, data=Ames)
 
 lm.fit.Comp5 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF +
                     TotRmsAbvGrd, data=Ames)
 
+lm.fit.Comp6 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
+                     GarageArea, data=Ames)
+
+lm.fit.Comp7 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
+                     GarageArea + X1stFlrSF, data=Ames)
+
+lm.fit.Comp8 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
+                     GarageArea + X1stFlrSF + X2ndFlrSF, data=Ames)
+
+lm.fit.Comp9 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
+                     GarageArea + X1stFlrSF + X2ndFlrSF + FullBath, data=Ames)
+
 lm.fit.Comp10 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
                      GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces, data=Ames)
+
+lm.fit.Comp11 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
+                     GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces + 
+                     HalfBath, data=Ames)
+
+lm.fit.Comp12 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
+                     GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces + 
+                     HalfBath + BedroomAbvGr, data=Ames)
+
+lm.fit.Comp13 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
+                     GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces + 
+                     HalfBath + BedroomAbvGr + GarageCars, data=Ames)
+
+lm.fit.Comp14 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
+                     GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces + 
+                     HalfBath + BedroomAbvGr + GarageCars + YearBuilt, data=Ames)
 
 lm.fit.Comp15 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
                      GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces + 
@@ -113,10 +145,10 @@ get_rmse(model = lm.fit.Comp3, data = test_data, response = "SalePrice")
 # Let's redefine our models from earlier with a fit_1 through fit_5
 
 fit_1 = lm.fit.Comp1
-fit_2 = lm.fit.Comp3
-fit_3 = lm.fit.Comp5
-fit_4 = lm.fit.Comp10
-fit_5 = lm.fit.Comp15
+fit_2 = lm.fit.Comp2
+fit_3 = lm.fit.Comp3
+fit_4 = lm.fit.Comp4
+fit_5 = lm.fit.Comp5
 
 model_list = list(fit_1, fit_2, fit_3, fit_4, fit_5)
 
@@ -142,19 +174,48 @@ lines(model_complexity, test_rmse, type = "b", col = "darkorange")
 
 ## Exercise 2 ##
 
+# 1. Plotting all 15 models
 
+model_comp = list(lm.fit.Comp1, lm.fit.Comp2, lm.fit.Comp3, lm.fit.Comp4, lm.fit.Comp5,
+                  lm.fit.Comp6, lm.fit.Comp7, lm.fit.Comp8, lm.fit.Comp9, lm.fit.Comp10,
+                  lm.fit.Comp11, lm.fit.Comp12, lm.fit.Comp13, lm.fit.Comp14, lm.fit.Comp15)
 
+# Perform our training and testing over the list of fits we made
+train_rmse_15 = sapply(model_comp, get_rmse, data = train_data, response = "SalePrice")
+test_rmse_15 = sapply(model_comp, get_rmse, data = test_data, response = "SalePrice")
+model_complexity_15 = sapply(model_comp, get_complexity)
+# Plot our training and testing RMSE over Complexity
+plot(model_complexity_15, train_rmse_15, type = "b",
+     ylim = c(min(c(train_rmse_15, test_rmse_15)) - 0.02,
+              max(c(train_rmse_15, test_rmse_15)) + 0.02),
+     col = "dodgerblue",
+     xlab = "Model Size",
+     ylab = "RMSE")
+lines(model_complexity_15, test_rmse_15, type = "b", col = "darkorange")
 
+# 2. Let's do some training
+# First we run a correlation matrix across all relevant variables and use some intuition along with 
+# any significant correlation we find to narrow down our variables we want. This is so
+# that when we test our models they aren't computationally lethal as you'll see in a second.
+# Now that we have our parred down data set we will create a model that checks all combinations
+# of linear models.
+# lm(y~x1), lm(y~x1 + x2), lm(y~x1 + x3) ... 
 
+cor_matrix = round(cor(Ames), digits=3)
+Scatter_Ames = pairs(Ames[,c(2,3,6,7,8,9,10,11,12,13,
+                             14,15,16,17,18,19,20,21,22)], pch = 19,lower.panel = NULL)
 
+# This function checks the t-val for a simple linear model for each value
+# It should not be used as is and needs added complexity to be of value.
+# Good for parring down data as as first pass.
 
-
-
-
-
-
-
-
-
+for (parameter in c(1:34)){
+  lm.fit = summary(lm(SalePrice ~ train_data[,c(parameter)], data = train_data))
+  t_val = lm.fit$coefficients[6] # gets the t-value for each fit
+  if (t_val < abs(2)){
+    print(colnames(Ames[parameter]))
+  }
+}
+# Drop the colnames displayed when this is run and repeat
 
 
