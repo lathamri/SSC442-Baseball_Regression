@@ -1,9 +1,217 @@
 # Training and Testing: (Linear) Predictions
 
+**Due Thursday, February 13**
+
+This lab utilizes the “ames.csv” data [(found here)](/Labs/data/ames.csv). As a reminder, this is a dataset concerning home sales from Ames, Iowa. The end of this lab features a (lengthy) discussion about indexing in `R`; this is optional reading but highly encouraged to improve your coding.
+
+## Linear Models
+
+When using linear models in other classes, we often emphasize asymptotic results under distributional assumptions. That is, we make assumptions about the model in order to derive properties of large samples. This general approach is useful for creating and performing hypothesis tests. Frequently, when developing a linear regression model, part of our goal was to **explain** a relationship. However, this isn't
+
+Now, we will ignore much of what we have learned (sorry) and instead simply use regression as a tool to **predict**. Instead of a model which supposedly explains relationships, we seek a model which minimizes **errors**.
+
+![](/assets/regression.png)
+
+To discuss linear models in the context of prediction, we return to the `Ames` data. Accordingly, you should utilize some of the early code from Lab 2 to hasten your progress in this lab.
+
+### Assesing Model Accuracy
+
+There are many metrics to assess the accuracy of a regression model. Most of these measure in some way the average error that the model makes. The metric that we will be most interested in is the root-mean-square error.
+
+$$
+\text{RMSE}(\hat{f}, \text{Data}) = \sqrt{\frac{1}{n}\displaystyle\sum_{i = 1}^{n}\left(y_i - \hat{f}(\bf{x}_i)\right)^2}
+$$
+
+While for the sake of comparing models, the choice between RMSE and MSE is arbitrary, we have a preference for RMSE, as it has the same units as the response variable. Also, notice that in the prediction context MSE refers to an average, whereas in an ANOVA context, the denominator for MSE may not be $n$.
+
+For a linear model , the estimate of $f$, $\hat{f}$, is given by the fitted regression line.
+
+$$
+\hat{y}({\bf{x}_i}) = \hat{f}({\bf{x}_i})
+$$
+
+We can write an `R` function that will be useful for performing this calculation.
+
+```{r}
+rmse = function(actual, predicted) {
+  sqrt(mean((actual - predicted) ^ 2))
+}
+```
+
+### Model Complexity
+
+Aside from how well a model predicts, we will also be very interested in the complexity (flexibility) of a model. For now, we will only consider nested linear models for simplicity. Then in that case, the more predictors that a model has, the more complex the model. For the sake of assigning a numerical value to the complexity of a linear model, we will use the number of predictors, $p$.
+
+We write a simple `R` function to extract this information from a model.
+
+```{r}
+get_complexity = function(model) {
+  length(coef(model)) - 1
+}
+```
+---
+**Exercise 1:**
 
 
+1. Load the `Ames` data. Drop the variables `OverallCond` and `OverallQual`.
+2. Using **forward selection**---see [Lecture 6](https://msudataanalytics.github.io/SSC442/Lecture6/index.html) for details---create a series of models up to complexity length 15. You may use all variables, including categorical variables.
+3. Create a chart plotting the model complexity as the $x$-axis variable and RMSE as the $y$-axis variable. Describe any patterns you see. Do you think you should use the full-size model? Why or why not? What criterion are you using to make this statement?
+
+---
+
+### Test-Train Split
+
+There is an issue with fitting a model to all available data then using RMSE to determine how well the model predicts: it is essentially cheating. As a linear model becomes more complex, the RSS, thus RMSE, can never go up. It will only go down---or, in very specific cases where a new predictor is completely uncorrelated with the target, stay the same. This might seem to suggest that in order to predict well, we should use the largest possible model. However, in reality we have fit to a specific dataset, but as soon as we see new data, a large model may (in fact) predict poorly. This is called **overfitting**.
+
+The most common approach to overfitting is to take a dataset of interest and split it in two. One part of the datasets will be used to fit (train) a model, which we will call the **training** data. The remainder of the original data will be used to assess how well the model is predicting, which we will call the **test** data. Test data should *never* be used to train a model---its pupose is to evaluate the fitted model once you've settled on something.[^1]
+
+[^1]: Note that sometimes the terms *evaluation set* and *test set* are used interchangeably. We will give somewhat specific definitions to these later. For now we will simply use a single test set for a training set.
+
+Here we use the `sample()` function to obtain a random sample of the rows of the original data. We then use those row numbers (and remaining row numbers) to split the data accordingly. Notice we used the `set.seed()` function to allow use to reproduce the same random split each time we perform this analysis. Sometimes we don't want to do this; if we want to run lots of independent splits, then we do not need to set the initial seed.
+
+```{r}
+set.seed(9)
+num_obs = nrow(Ames)
+
+train_index = sample(num_obs, size = trunc(0.50 * num_obs))
+train_data = Ames[train_index, ]
+test_data = Ames[-train_index, ]
+```
+
+We will look at two measures that assess how well a model is predicting: **train RMSE** and **test RMSE**.
+
+$$
+\text{RMSE}_\text{Train} = \text{RMSE}(\hat{f}, \text{Train Data}) = \sqrt{\frac{1}{n_{\text{Tr}}}\sum_{i \in \text{Train}}\left(y_i - \hat{f}(\bf{x}_i)\right)^2}
+$$
+
+Here $n_{Tr}$ is the number of observations in the train set. Train RMSE will still always go down (or stay the same) as the complexity of a linear model increases. That means train RMSE will not be useful for comparing models, but checking that it decreases is a useful sanity check.
+
+$$
+\text{RMSE}_{\text{Test}} = \text{RMSE}(\hat{f}, \text{Test Data}) = \sqrt{\frac{1}{n_{\text{Te}}}\sum_{i \in \text{Test}} \left ( y_i - \hat{f}(\bf{x}_i) \right ) ^2}
+$$
+
+Here $n_{Te}$ is the number of observations in the test set. Test RMSE uses the model fit to the training data, but evaluated on the unused test data. This is a measure of how well the fitted model will predict **in general**, not simply how well it fits data used to train the model, as is the case with train RMSE. What happens to test RMSE as the size of the model increases? That is what we will investigate.
+
+We will start with the simplest possible linear model, that is, a model with no predictors.
+
+```{r}
+fit_0 = lm(SalePrice ~ 1, data = train_data)
+get_complexity(fit_0)
+
+# train RMSE
+sqrt(mean((train_data$SalePrice - predict(fit_0, train_data)) ^ 2))
+# test RMSE
+sqrt(mean((test_data$SalePrice - predict(fit_0, test_data)) ^ 2))
+```
+
+The previous two operations obtain the train and test RMSE. Since these are operations we are about to use repeatedly, we should use the function that we happen to have already written.
+
+```{r}
+# train RMSE
+rmse(actual = train_data$SalePrice, predicted = predict(fit_0, train_data))
+# test RMSE
+rmse(actual = test_data$SalePrice, predicted = predict(fit_0, test_data))
+```
+
+This function can actually be improved for the inputs that we are using. We would like to obtain train and test RMSE for a fitted model, given a train or test dataset, and the appropriate response variable.
+
+```{r}
+get_rmse = function(model, data, response) {
+  rmse(actual = subset(data, select = response, drop = TRUE),
+       predicted = predict(model, data))
+}
+```
+
+By using this function, our code becomes easier to read, and it is more obvious what task we are accomplishing.
+
+```{r}
+get_rmse(model = fit_0, data = train_data, response = "SalePrice") # train RMSE
+get_rmse(model = fit_0, data = test_data, response = "SalePrice") # test RMSE
+```
+**Try it:** Apply this basic function with different arguments. Do you understand how we've nested functions within functions?
+
+**Try it:** Define a total of five models using the first five models you fit in Exercise 1. Define these as `fit_1` through `fit_5`
 
 
+### Adding Flexibility to Linear Models
+
+Each successive model we fit will be more and more flexible using both interactions and polynomial terms. We will see the training error decrease each time the model is made more flexible. We expect the test error to decrease a number of times, then eventually start going up, as a result of overfitting. To better understand the relationship between train RMSE, test RMSE, and model complexity, we'll explore the results from Exercise 1.
+
+Hopefully, you tried the in-line excercise above. If so, we can create a list of the models fit.
+
+```{r}
+model_list = list(fit_1, fit_2, fit_3, fit_4, fit_5)
+```
+
+We then obtain train RMSE, test RMSE, and model complexity for each. In doing so, we'll introduce a handy function from `R` called `sapply()`. You can likely intuit what it does by looking at the code below.
+
+```{r}
+train_rmse = sapply(model_list, get_rmse, data = train_data, response = "SalePrice")
+test_rmse = sapply(model_list, get_rmse, data = test_data, response = "SalePrice")
+model_complexity = sapply(model_list, get_complexity)
+```
+
+**Try it:** Run `?sapply()` to understand what are valid arguments to the function.
+
+Once you've done this, you'll notice the following:
+
+```{r}
+# This is the same as the apply command above
+
+test_rmse = c(get_rmse(fit_1, test_data, "SalePrice"),
+              get_rmse(fit_2, test_data, "SalePrice"),
+              get_rmse(fit_3, test_data, "SalePrice"),
+              get_rmse(fit_4, test_data, "SalePrice"),
+              get_rmse(fit_5, test_data, "SalePrice"))
+```
+
+We can plot the results. The train RMSE can be seen in blue, while the test RMSE is given in orange.[^3]
+
+[^3]: The train RMSE is guaranteed to follow this non-increasing pattern. The same is not true of test RMSE. We often see a nice U-shaped curve. There are theoretical reasons why we should expect this, but that is on average. Because of the randomness of one test-train split, we may not always see this result. Re-perform this analysis with a different seed value and the pattern may not hold. We will discuss why we expect this next chapter. We will discuss how we can help create this U-shape much later. Also, we might intuitively expect train RMSE to be lower than test RMSE. Again, due to the randomness of the split, you may get (un)lucky and this will not be true.
+
+```{r}
+plot(model_complexity, train_rmse, type = "b",
+     ylim = c(min(c(train_rmse, test_rmse)) - 0.02,
+              max(c(train_rmse, test_rmse)) + 0.02),
+     col = "dodgerblue",
+     xlab = "Model Size",
+     ylab = "RMSE")
+lines(model_complexity, test_rmse, type = "b", col = "darkorange")
+```
+
+We could also summarize the results as a table. `fit_1` is the least flexible, and `fit_5` is the most flexible. We see the Train RMSE decrease as flexibility increases.
+
+| Model   | Train RMSE        | Test RMSE        | Predictors              |
+|---------|-------------------|------------------|-------------------------|
+| `fit_1` | RMSE$_{\text{train}}$ for model 1 | RMSE$_{\text{test}}$ for model 1 | put predictors here|
+| ...| ... | .... | ... |
+| `fit_5` | RMSE$_{\text{train}}$ for model 5  | RMSE$_{\text{train}}$ for model 5  | $p$ predictors |
+
+**Try it:**  When is the Test RMSE is smallest amongst the five models? Note this may not be the **best** model, but it is the best model of the class of models you've attempted?
+
+To summarize:
+
+- **Underfitting models:** In general *High* Train RMSE, *High* Test RMSE.
+- **Overfitting models:** In general *Low* Train RMSE, *High* Test RMSE.
+
+Specifically, we say that a model is overfitting if there exists a less complex model with lower Test RMSE.[^2] Then a model is underfitting if there exists a more complex model with lower Test RMSE.
+
+[^2]: The labels of under and overfitting are *relative* to the best model we see. Any model more complex with higher Test RMSE is overfitting. Any model less complex with higher Test RMSE is underfitting.
+
+---
+**Exercise 2:**
+
+1. Plot the Train and Test RMSE for the 15 models you fit in Exercise 1.
+2. **This question is the most time-consuming question.** Using any method you choose and any number of regressors, predict `SalePrice`. Calculate the Train and Test RMSE.
+3. In a PDF write-up, describe the resulting model. Discuss how you arrived at this model, what interactions you're using (if any) and how confident you are that your group's prediction will perform well, relative to other groups.
+4. **Difficult; extra credit:** Visualize your final model in a sensible way and provide a two-paragraph interpretation.
+
+
+**Evaluation:** Exercise 2 will be evaluated according to lowest RMSE. The five groups with the lowest RMSE will receive top credit. Next five will receive second highest score; and so on.
+
+---
+
+A final note on the analysis performed here; we paid no attention whatsoever to the "assumptions" of a linear model. We only sought a model that **predicted** well, and paid no attention to a model for **explaination**. Hypothesis testing did not play a role in deciding the model, only prediction accuracy. Collinearity? We don't care. Assumptions? Still don't care. Diagnostics? Never heard of them. (These statements are a little over the top, and not completely true, but just to drive home the point that we only care about prediction. Often we latch onto methods that we have seen before, even when they are not needed.)
 
 
 ---
@@ -25,8 +233,8 @@ boat.costs = c(52, 80, 20, 100, 189, 12, 520, 68, 80, 100)
 
 Indexing is a simple tool but it can answer both simple and complex questions. For example, in the data above, we can answer the following questions using a single line of code:
 
+**Try it:** See the exercises below for a simple guide to using logical indexing.
 1. What was the price of the first boat? ```boat.prices[1]```
-
 2. What were the ages of the first 5 boats? ```boat.ages[1:5]```
 3. What were the names of the black boats?```boat.names[boat.colors == "black"]```
 4. What were the prices of either green or yellow boats? ```boat.prices[boat.colors == "green" | boat.colors == "yellow"]```
@@ -70,9 +278,9 @@ boat.names[my.index]
 
 ## Logical Indexing
 
-The second way to index vectors is with *logical vectors*. A logical vector is a vector that *only* contains `TRUE` and `FALSE` values. In `R`, true values are designated with `TRUE`, and false values with `FALSE` (in other languages, zero and one are acceptable). When you index a vector with a logical vector, `R` will return values of the vector for which the indexing vector is `TRUE`.[^1]
+The second way to index vectors is with *logical vectors*. A logical vector is a vector that *only* contains `TRUE` and `FALSE` values. In `R`, true values are designated with `TRUE`, and false values with `FALSE` (in other languages, zero and one are acceptable). When you index a vector with a logical vector, `R` will return values of the vector for which the indexing vector is `TRUE`.[^12]
 
-[^1]: If that was confusing, think about it this way: a logical vector, combined with the brackets `[ ]`, acts as a *filter* for the vector it is indexing. That is, it only lets values of the vector pass through the filter if the logical vector is `TRUE`. `FALSE` values in a logical vector are like mini-Gandalfs. If we index a vector `x` with a logical vector `y`, then mini-Gandalf stops all the values of `x` for which `y` was `FALSE`.
+[^12]: If that was confusing, think about it this way: a logical vector, combined with the brackets `[ ]`, acts as a *filter* for the vector it is indexing. That is, it only lets values of the vector pass through the filter if the logical vector is `TRUE`. `FALSE` values in a logical vector are like mini-Gandalfs. If we index a vector `x` with a logical vector `y`, then mini-Gandalf stops all the values of `x` for which `y` was `FALSE`.
 
 
 The easiest way to create logical vectors is from *existing vectors* using comparison operators like `<` (less than), `==` (equals to), and `!=` (not equal to).
@@ -259,9 +467,9 @@ x[x > 10] <- 10
 x
 ```
 
-As you can see, our new values of x are now never less than 1 or greater than 10![^2]
+As you can see, our new values of x are now never less than 1 or greater than 10![^11]
 
-[^2]:**A Note on Indexing:** Technically, when you assign new values to a vector, you should always assign a vector of the same length as the number of values that you are updating. For example, given a vector a with 10 1s: ```a <- rep(1, 10)``` To update the first 5 values with 5 9s, we should assign a new vector of 5 9s: ```a[1:5] <- c(9, 9, 9, 9, 9)``` However, if we repeat this code but just assign a single 9, `R` will repeat the value as many times as necessary to fill the indexed value of the vector. That's why the following code still works: ```a[1:5] <- 9``` In other languages this code **wouldn't work** because we're trying to replace 5 values with just 1. However, this is a case where `R` bends the rules of programming a bit. But don't do this.
+[^11]:**A Note on How R Handles Indexing:** Technically, when you assign new values to a vector, you should always assign a vector of the same length as the number of values that you are updating. For example, given a vector a with 10 1s: ```a <- rep(1, 10)``` To update the first 5 values with 5 9s, we should assign a new vector of 5 9s: ```a[1:5] <- c(9, 9, 9, 9, 9)``` However, if we repeat this code but just assign a single 9, `R` will repeat the value as many times as necessary to fill the indexed value of the vector. That's why the following code still works: ```a[1:5] <- 9``` In other languages this code **wouldn't work** because we're trying to replace 5 values with just 1. However, this is a case where `R` bends the rules of programming a bit. But don't do this.
 
 ### Example: Fixing Missing or Incorrect Data
 
