@@ -30,12 +30,7 @@ Ames = Ames[ , !(names(Ames) %in% c('OverallCond', 'OverallQual'))]
 
 # Drop NA's from our df
 Ames = na.omit(Ames)
-<<<<<<< HEAD
-=======
 
-## Split our data into train and test ##
-
->>>>>>> 97a65b9971328f026ee9ae4b173226a0dc6f7f27
 # Makes forward selection plots up to complexity 15
 lm.fit.Comp1 = lm(SalePrice ~ GrLivArea, data=Ames)
 
@@ -218,17 +213,10 @@ lines(model_complexity, test_rmse, type = "b", col = "darkorange")
 
 
 # 1. Plotting all 15 models
-
-<<<<<<< HEAD
-lm.fit.All = lm(SalePrice ~ . + GrLivArea:BsmtFinSF1 + GrLivArea:KitchenAbvGr, data=Ames)
-
-=======
 # Compile all the fits into a list
->>>>>>> 97a65b9971328f026ee9ae4b173226a0dc6f7f27
 model_comp = list(lm.fit.Comp1, lm.fit.Comp2, lm.fit.Comp3, lm.fit.Comp4, lm.fit.Comp5,
                   lm.fit.Comp6, lm.fit.Comp7, lm.fit.Comp8, lm.fit.Comp9, lm.fit.Comp10,
-                  lm.fit.Comp11, lm.fit.Comp12, lm.fit.Comp13, lm.fit.Comp14, lm.fit.Comp15,
-                  lm.fit.Comp19, lm.fit.All)
+                  lm.fit.Comp11, lm.fit.Comp12, lm.fit.Comp13, lm.fit.Comp14, lm.fit.Comp15)
 
 # Perform our training and testing over the list of fits we made
 train_rmse_15 = sapply(model_comp, get_rmse, data = train_data, response = "SalePrice")
@@ -242,13 +230,13 @@ plot(model_complexity_15, train_rmse_15, type = "b",
      xlab = "Model Size",
      ylab = "RMSE")
 lines(model_complexity_15, test_rmse_15, type = "b", col = "darkorange")
-legend("bottomleft", 
+legend("topright", 
        legend = c("Train", "Test"), 
        col = c('blue', 
                'darkorange'), 
        pch = c(19,19), 
        bty = "n", 
-       pt.cex = 2, 
+       pt.cex = 1, 
        cex = 1.2, 
        text.col = "black", 
        horiz = F , 
@@ -257,9 +245,8 @@ legend("bottomleft",
 # 2. Let's do some training
 
 # First we run a correlation matrix across all relevant variables and use some intuition along with 
-# any significant correlation we find to narrow down our variables we want. This is so
-# that when we test our models they aren't computationally lethal as you'll see in a second.
-# Now that we have our parred down data set we will create a model that checks all combinations
+# any significant correlation we find to narrow down our variables we want.
+# Now that we have our parred down data set we will create a model that checks combinations
 # of linear models.
 # lm(y~x1), lm(y~x1 + x2), lm(y~x1 + x3) ... 
 # This can give us measures like F-stat and p-values to compare across models as well as 
@@ -269,52 +256,14 @@ cor_matrix = round(cor(Ames), digits=3)
 Scatter_Ames = pairs(Ames[,c(2,3,6,7,8,9,10,11,12,13,
                              14,15,16,17,18,19,20,21,22)], pch = 19,lower.panel = NULL)
 
-<<<<<<< HEAD
 # This function checks the r_sqr for a simple linear model for each value
-=======
 # Heatmap add any additional insite?
 heatmap(cor_matrix, scale = 'column')
 library(GGally)
 ggcorr(Ames)
 
-# This function checks the t-val for a simple linear model for each value
->>>>>>> 97a65b9971328f026ee9ae4b173226a0dc6f7f27
-# It should not be used as is and needs added complexity to be of value.
-# Good for parring down data as as first pass.
-
-for (parameter in c(1:34)){
-  lm.fit = summary(lm(SalePrice ~ train_data[,c(parameter)], data = train_data))
-  r_sqr = lm.fit$r.squared # gets the t-value for each fit
-  if (r_sqr > 0.05){
-    append(test_model, r_sqr)
-    print(r_sqr)
-    print(colnames(Ames[c(parameter)])) 
-  }
-}
-
-<<<<<<< HEAD
-
-test_model = lm(SalePrice ~ LotFrontage + LotArea + YearBuilt + YearRemodAdd +
-                  MasVnrArea + BsmtFinSF1 + BsmtUnfSF + TotalBsmtSF + X1stFlrSF +
-                  X2ndFlrSF + GrLivArea + BsmtFullBath + FullBath + HalfBath +
-                  TotRmsAbvGrd + Fireplaces + GarageYrBlt + GarageCars + GarageArea +
-                  WoodDeckSF + OpenPorchSF, data=train_data)
-print(test_model)
-# Drop the colnames displayed when this is run and repeat
-
-
 get_rmse(test_model, data = test_data,response = "SalePrice")
 summary(test_model)
-
-library(data.table)
-outlierReplace = function(dataframe, cols, rows, newValue = NA){
-  if (any(rows)){
-    set(dataframe, rows, cols, newValue)
-  }
-}
-
-outlierReplace(train_data, "SalePrice", which(train_data$SalePrice>500000, NA))
-
 
 lm.fit.All = lm(SalePrice ~ . - GrLivArea  - TotalBsmtSF +
                 GrLivArea:BsmtFinSF1 + GrLivArea:KitchenAbvGr, data=train_data)
@@ -324,9 +273,6 @@ summary(lm.fit.All)
 get_rmse(lm.fit.All, data = test_data,response = "SalePrice")
 
 
-
-
-=======
 # Drop the colnames displayed when this is run and repeat
 
 
@@ -341,24 +287,183 @@ lm.ryan = lm(SalePrice ~ GrLivArea + FullBath + LotFrontage + LotArea + WoodDeck
 get_rmse(model = lm.ryan, data = test_data, response = "SalePrice")
 
 
-
-
 #lm.full = lm(SalePrice ~ ., data = train_data)
 #lm.full
 summary(lm.ryan)
 
+model_comp_all = list(lm.fit.Comp1, lm.fit.Comp2, lm.fit.Comp3, lm.fit.Comp4, lm.fit.Comp5,
+                  lm.fit.Comp6, lm.fit.Comp7, lm.fit.Comp8, lm.fit.Comp9, lm.fit.Comp10,
+                  lm.fit.Comp11, lm.fit.Comp12, lm.fit.Comp13, lm.fit.Comp14, lm.fit.Comp15, 
+                  lm.ryan, lm.fit.full)
+
+# Perform our training and testing over the list of fits we made
+
+train_rmse_all = sapply(model_comp_all, get_rmse, data = train_data, response = "SalePrice")
+test_rmse_all = sapply(model_comp_all, get_rmse, data = test_data, response = "SalePrice")
+model_complexity_all = sapply(model_comp_all, get_complexity)
+
+plot(model_complexity_all, train_rmse_all, type = "b",
+     ylim = c(min(c(train_rmse_all, test_rmse_all)) - 0.02,
+              max(c(train_rmse_all, test_rmse_all)) + 0.02),
+     col = "dodgerblue",
+     xlab = "Model Size",
+     ylab = "RMSE")
+lines(model_complexity_all, test_rmse_all, type = "b", col = "darkorange")
 
 
+# TESTING LINEAR MODELS WITH LOOPS #
 
-install.packages("data.table")
-library(data.table)
-
-outlierReplace = function(dataframe, cols, rows, newValue = NA) {
-  if (any(rows)) {
-    set(dataframe, rows, cols, newValue)
+MAX = -Inf
+max_r_param = NULL
+param_vec = c(2:34)
+regress_vec = c(35)
+while (length(param_vec)>3){
+  for (parameter in param_vec){
+    lm.fit = summary(lm(SalePrice ~ ., data=subset(train_data,
+                                                   select = union(c(parameter), regress_vec))))
+    r_sqr = lm.fit$r.squared
+    if (r_sqr > MAX){
+      MAX = r_sqr
+      max_r_param = colnames(train_data[c(parameter)])
+    }
   }
+  param_vec = param_vec[param_vec!=grep(max_r_param, colnames(train_data))]
+  regress_vec = append(regress_vec, grep(max_r_param, colnames(train_data)))
 }
 
+length(param_vec)
+print(regress_vec)
+length(regress_vec)
 
-outlierReplace(train_data, "SalePrice", which(train_data$SalePrice > 500000), NA)
->>>>>>> 97a65b9971328f026ee9ae4b173226a0dc6f7f27
+test.lm.1 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14)))
+test.lm.2 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10)))
+test.lm.3 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4)))
+test.lm.4 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19)))
+test.lm.5 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24)))
+test.lm.6 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                  7)))
+test.lm.7 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                  7, 5)))
+test.lm.8 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                  7, 5, 20)))
+test.lm.9 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                  7, 5, 20, 3)))
+test.lm.10 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22)))
+test.lm.11= lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                  7, 5, 20, 3, 22, 6)))
+test.lm.12 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6, 
+                                                                   2)))
+test.lm.13 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6, 
+                                                                   2, 26)))
+test.lm.14 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6, 
+                                                                   2, 26, 25)))
+test.lm.15 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21)))
+test.lm.16 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33)))
+test.lm.17 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8)))
+test.lm.18 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28)))
+test.lm.19 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13)))
+test.lm.20 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16)))
+test.lm.21 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30)))
+test.lm.22 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11)))
+test.lm.23 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11, 
+                                                                   18)))
+test.lm.24 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11, 
+                                                                   18, 31)))
+test.lm.25 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11, 
+                                                                   18, 31, 15)))
+test.lm.26 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11, 
+                                                                   18, 31, 15, 17)))
+test.lm.27 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11, 
+                                                                   18, 31, 15, 17, 23)))
+
+test.lm.28 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11, 
+                                                                   18, 31, 15, 17, 23, 
+                                                                   34)))
+test.lm.29 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11, 
+                                                                   18, 31, 15, 17, 23, 
+                                                                   34, 32)))
+test.lm.30 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11, 
+                                                                   18, 31, 15, 17, 23, 
+                                                                   34, 32, 27)))
+test.lm.31 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+                                                                   7, 5, 20, 3, 22, 6,
+                                                                   2, 26, 25, 21, 33, 8,
+                                                                   28, 13, 16, 30, 11, 
+                                                                   18, 31, 15, 17, 23, 
+                                                                   34, 32, 27, 29)))
+
+
+test_model_all = c(test.lm.1, test.lm.2, test.lm.3, test.lm.4, test.lm.5,
+                   test.lm.6, test.lm.7, test.lm.8, test.lm.9, test.lm.10,
+                   test.lm.11, test.lm.12, test.lm.13, test.lm.14, test.lm.15,
+                   test.lm.16, test.lm.17, test.lm.18, test.lm.19, test.lm.20,
+                   test.lm.21, test.lm.22, test.lm.23, test.lm.24, test.lm.25,
+                   test.lm.26, test.lm.27, test.lm.28, test.lm.29, test.lm.30,
+                   test.lm.31)
+
+rmse(test_data$SalePrice, predict(test.lm.31))
+sd(test_data$SalePrice)
+summary(test.lm.31)
+
+length(predict(test.lm.33))
+length(train_data$SalePrice)
+
+get_rmse(model = test.lm.33, data = test_data, response = "SalePrice")
+
+train_rmse_all = sapply(test_model_all, get_rmse, data = train_data, response = "SalePrice")
+test_rmse_all = sapply(test_model_all, get_rmse, data = test_data, response = "SalePrice")
+model_complexity_all = sapply(test_model_all, get_complexity)
+
+
+
+
+
