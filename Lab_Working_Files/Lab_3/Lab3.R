@@ -24,7 +24,6 @@ Ames = Ames[ , !(names(Ames) %in% c('OverallCond', 'OverallQual'))]
 
 # Part 2
 Ames = na.omit(Ames)
-# Split our data into train and test
 # Makes forward selection plots up to complexity 15
 lm.fit.Comp1 = lm(SalePrice ~ GrLivArea, data=Ames)
 
@@ -71,11 +70,6 @@ lm.fit.Comp14 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + 
 lm.fit.Comp15 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
                      GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces + 
                      HalfBath + BedroomAbvGr + GarageCars + YearBuilt + WoodDeckSF, data=Ames)
-
-lm.fit.Comp19 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
-                     GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces + 
-                     HalfBath + BedroomAbvGr + GarageCars + YearBuilt + WoodDeckSF +
-                     BsmtFinSF1 + BsmtFullBath + BsmtHalfBath + KitchenAbvGr, data=Ames)
 
 # Part 3
 
@@ -215,15 +209,9 @@ cor_matrix = round(cor(Ames), digits=3)
 Scatter_Ames = pairs(Ames[,c(2,3,6,7,8,9,10,11,12,13,
                              14,15,16,17,18,19,20,21,22)], pch = 19,lower.panel = NULL)
 
-# This function checks the t-val for a simple linear model for each value
+# This function checks the r_sqr for a simple linear model for each value
 # It should not be used as is and needs added complexity to be of value.
 # Good for parring down data as as first pass.
-
-test_model = lm(SalePrice ~ LotFrontage + LotArea + YearBuilt + YearRemodAdd +
-                  MasVnrArea + BsmtFinSF1 + BsmtUnfSF + TotalBsmtSF + X1stFlrSF +
-                  X2ndFlrSF + GrLivArea + BsmtFullBath + FullBath + HalfBath +
-                  TotRmsAbvGrd + Fireplaces + GarageYrBlt + GarageCars + GarageArea +
-                  WoodDeckSF + OpenPorchSF, data=train_data)
 
 for (parameter in c(1:34)){
   lm.fit = summary(lm(SalePrice ~ train_data[,c(parameter)], data = train_data))
@@ -235,15 +223,35 @@ for (parameter in c(1:34)){
   }
 }
 
+
+test_model = lm(SalePrice ~ LotFrontage + LotArea + YearBuilt + YearRemodAdd +
+                  MasVnrArea + BsmtFinSF1 + BsmtUnfSF + TotalBsmtSF + X1stFlrSF +
+                  X2ndFlrSF + GrLivArea + BsmtFullBath + FullBath + HalfBath +
+                  TotRmsAbvGrd + Fireplaces + GarageYrBlt + GarageCars + GarageArea +
+                  WoodDeckSF + OpenPorchSF, data=train_data)
 print(test_model)
 # Drop the colnames displayed when this is run and repeat
 
+
 get_rmse(test_model, data = test_data,response = "SalePrice")
-get_rmse(lm.fit.All, data = test_data,response = "SalePrice")
 summary(test_model)
+
+library(data.table)
+outlierReplace = function(dataframe, cols, rows, newValue = NA){
+  if (any(rows)){
+    set(dataframe, rows, cols, newValue)
+  }
+}
+
+outlierReplace(train_data, "SalePrice", which(train_data$SalePrice>500000, NA))
+
+
+lm.fit.All = lm(SalePrice ~ . - GrLivArea  - TotalBsmtSF +
+                GrLivArea:BsmtFinSF1 + GrLivArea:KitchenAbvGr, data=train_data)
+
 summary(lm.fit.All)
 
-sd(test_data$SalePrice)
+get_rmse(lm.fit.All, data = test_data,response = "SalePrice")
 
 
 
