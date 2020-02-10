@@ -72,6 +72,11 @@ lm.fit.Comp15 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + 
                      GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces + 
                      HalfBath + BedroomAbvGr + GarageCars + YearBuilt + WoodDeckSF, data=Ames)
 
+lm.fit.Comp19 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + TotRmsAbvGrd + 
+                     GarageArea + X1stFlrSF + X2ndFlrSF + FullBath + Fireplaces + 
+                     HalfBath + BedroomAbvGr + GarageCars + YearBuilt + WoodDeckSF +
+                     BsmtFinSF1 + BsmtFullBath + BsmtHalfBath + KitchenAbvGr, data=Ames)
+
 # Part 3
 
 # Grab our functions
@@ -176,9 +181,12 @@ lines(model_complexity, test_rmse, type = "b", col = "darkorange")
 
 # 1. Plotting all 15 models
 
+lm.fit.All = lm(SalePrice ~ . + GrLivArea:BsmtFinSF1 + GrLivArea:KitchenAbvGr, data=Ames)
+
 model_comp = list(lm.fit.Comp1, lm.fit.Comp2, lm.fit.Comp3, lm.fit.Comp4, lm.fit.Comp5,
                   lm.fit.Comp6, lm.fit.Comp7, lm.fit.Comp8, lm.fit.Comp9, lm.fit.Comp10,
-                  lm.fit.Comp11, lm.fit.Comp12, lm.fit.Comp13, lm.fit.Comp14, lm.fit.Comp15)
+                  lm.fit.Comp11, lm.fit.Comp12, lm.fit.Comp13, lm.fit.Comp14, lm.fit.Comp15,
+                  lm.fit.Comp19, lm.fit.All)
 
 # Perform our training and testing over the list of fits we made
 train_rmse_15 = sapply(model_comp, get_rmse, data = train_data, response = "SalePrice")
@@ -200,6 +208,8 @@ lines(model_complexity_15, test_rmse_15, type = "b", col = "darkorange")
 # Now that we have our parred down data set we will create a model that checks all combinations
 # of linear models.
 # lm(y~x1), lm(y~x1 + x2), lm(y~x1 + x3) ... 
+# This can give us measures like F-stat and p-values to compare across models as well as 
+# RMSE so we will have the best possible model.
 
 cor_matrix = round(cor(Ames), digits=3)
 Scatter_Ames = pairs(Ames[,c(2,3,6,7,8,9,10,11,12,13,
@@ -209,13 +219,32 @@ Scatter_Ames = pairs(Ames[,c(2,3,6,7,8,9,10,11,12,13,
 # It should not be used as is and needs added complexity to be of value.
 # Good for parring down data as as first pass.
 
+test_model = lm(SalePrice ~ LotFrontage + LotArea + YearBuilt + YearRemodAdd +
+                  MasVnrArea + BsmtFinSF1 + BsmtUnfSF + TotalBsmtSF + X1stFlrSF +
+                  X2ndFlrSF + GrLivArea + BsmtFullBath + FullBath + HalfBath +
+                  TotRmsAbvGrd + Fireplaces + GarageYrBlt + GarageCars + GarageArea +
+                  WoodDeckSF + OpenPorchSF, data=train_data)
+
 for (parameter in c(1:34)){
   lm.fit = summary(lm(SalePrice ~ train_data[,c(parameter)], data = train_data))
-  t_val = lm.fit$coefficients[6] # gets the t-value for each fit
-  if (t_val < abs(2)){
-    print(colnames(Ames[parameter]))
+  r_sqr = lm.fit$r.squared # gets the t-value for each fit
+  if (r_sqr > 0.05){
+    append(test_model, r_sqr)
+    print(r_sqr)
+    print(colnames(Ames[c(parameter)])) 
   }
 }
+
+print(test_model)
 # Drop the colnames displayed when this is run and repeat
+
+get_rmse(test_model, data = test_data,response = "SalePrice")
+get_rmse(lm.fit.All, data = test_data,response = "SalePrice")
+summary(test_model)
+summary(lm.fit.All)
+
+sd(test_data$SalePrice)
+
+
 
 
