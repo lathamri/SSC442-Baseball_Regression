@@ -13,17 +13,29 @@ ameslist <- read.table("https://msudataanalytics.github.io/SSC442/Labs/data/ames
                        header = TRUE,
                        sep = ",")
 
-# Finds integer data
+# Finds integer data - save to variable for indexing.
 int_type = lapply(ameslist, class)
+
 # Generates a dataframe from ames data with all integer type data
 Ames = ameslist[int_type=='integer']
+
 # Drop columns that don't have meaning
 Ames$MSSubClass = NULL
-# Drops overallcond and overallqual
+
+# Drops the columns overallcond and overallqual
+# Basically re-saving Ames as Ames without (!) these two columns, but keeping all rows.
 Ames = Ames[ , !(names(Ames) %in% c('OverallCond', 'OverallQual'))]
 
 # Part 2
+
+# Drop NA's from our df
 Ames = na.omit(Ames)
+<<<<<<< HEAD
+=======
+
+## Split our data into train and test ##
+
+>>>>>>> 97a65b9971328f026ee9ae4b173226a0dc6f7f27
 # Makes forward selection plots up to complexity 15
 lm.fit.Comp1 = lm(SalePrice ~ GrLivArea, data=Ames)
 
@@ -73,11 +85,13 @@ lm.fit.Comp15 = lm(SalePrice ~ GrLivArea + LotArea + MasVnrArea + TotalBsmtSF + 
 
 # Part 3
 
-# Grab our functions
+## Grab our functions ##
+
 # RMSE function
 rmse = function(actual, predicted) {
   sqrt(mean((actual - predicted) ^ 2))
 }
+
 # Complexity function
 get_complexity = function(model) {
   length(coef(model)) - 1
@@ -99,8 +113,31 @@ pred.Comp15 = predict(lm.fit.Comp15)
 rmse.Comp15 = rmse(Ames$SalePrice, pred.Comp15)
 
 comp_rmse_plt = plot(c(1,3,5,10,15), 
-                     c(rmse.Comp1,rmse.Comp3, rmse.Comp5, rmse.Comp10, rmse.Comp15),
+                     c(rmse.Comp1, rmse.Comp3, rmse.Comp5, rmse.Comp10, rmse.Comp15),
                      main='RMSE vs Complexity in Ames', ylab='RMSE', xlab='Complexity')
+
+
+####################################
+## how does a full model compare? ##
+####################################
+
+# Fit the model to all predictors
+lm.fit.full = lm(SalePrice ~ ., data=Ames)
+
+# Use this model to predict values
+pred.full = predict(lm.fit.full)
+
+# run the prediction and actual values through rmse function
+rmse.full = rmse(Ames$SalePrice, pred.full)
+
+# Graph the previous data points with the full-fit model
+full.rmse = plot(c(1,3,5,10,15, get_complexity(lm.fit.full)), 
+     c(rmse.Comp1, rmse.Comp3, rmse.Comp5, rmse.Comp10, rmse.Comp15, rmse.full),
+     main='RMSE vs Complexity in Ames', ylab='RMSE', xlab='Complexity')
+
+# Using a full model will always be the 'best fit' as it contains all the predictors. However, 
+# this is considered cheating, as with any simple lineaer model, the RMSE will decrease
+# with increasing complexity. This is called 'overfitting' the data.
 
 # We can see a clear drop in RMSE with the rise in complexity. This is exactly what we would expect
 # and should continue until some point where we capture the least bias without adding too many
@@ -139,7 +176,7 @@ get_rmse(model = fit_0, data = test_data, response = "SalePrice") # test RMSE
 get_rmse(model = lm.fit.Comp3, data = train_data, response = "SalePrice")
 get_rmse(model = lm.fit.Comp3, data = test_data, response = "SalePrice")
 
-# It uses the function rmse we made earlier and expands the functionality to make it easier to 
+# It used the rmse function we made earlier and expanded the functionality to make it easier to 
 # understand what's happening and take in a wider variety of data.
 # Let's redefine our models from earlier with a fit_1 through fit_5
 
@@ -171,12 +208,23 @@ lines(model_complexity, test_rmse, type = "b", col = "darkorange")
 # This shows us that the most complex model we have is the best model we've modeled because it 
 # has the smallest RMSE on both the train and test data.
 
+## Underfitting models: In general High Train RMSE, High Test RMSE.
+## Overfitting models: In general Low Train RMSE, High Test RMSE.
+
+
+################
 ## Exercise 2 ##
+################
+
 
 # 1. Plotting all 15 models
 
+<<<<<<< HEAD
 lm.fit.All = lm(SalePrice ~ . + GrLivArea:BsmtFinSF1 + GrLivArea:KitchenAbvGr, data=Ames)
 
+=======
+# Compile all the fits into a list
+>>>>>>> 97a65b9971328f026ee9ae4b173226a0dc6f7f27
 model_comp = list(lm.fit.Comp1, lm.fit.Comp2, lm.fit.Comp3, lm.fit.Comp4, lm.fit.Comp5,
                   lm.fit.Comp6, lm.fit.Comp7, lm.fit.Comp8, lm.fit.Comp9, lm.fit.Comp10,
                   lm.fit.Comp11, lm.fit.Comp12, lm.fit.Comp13, lm.fit.Comp14, lm.fit.Comp15,
@@ -194,8 +242,20 @@ plot(model_complexity_15, train_rmse_15, type = "b",
      xlab = "Model Size",
      ylab = "RMSE")
 lines(model_complexity_15, test_rmse_15, type = "b", col = "darkorange")
+legend("bottomleft", 
+       legend = c("Train", "Test"), 
+       col = c('blue', 
+               'darkorange'), 
+       pch = c(19,19), 
+       bty = "n", 
+       pt.cex = 2, 
+       cex = 1.2, 
+       text.col = "black", 
+       horiz = F , 
+       inset = c(0.1, 0.1))
 
 # 2. Let's do some training
+
 # First we run a correlation matrix across all relevant variables and use some intuition along with 
 # any significant correlation we find to narrow down our variables we want. This is so
 # that when we test our models they aren't computationally lethal as you'll see in a second.
@@ -209,7 +269,16 @@ cor_matrix = round(cor(Ames), digits=3)
 Scatter_Ames = pairs(Ames[,c(2,3,6,7,8,9,10,11,12,13,
                              14,15,16,17,18,19,20,21,22)], pch = 19,lower.panel = NULL)
 
+<<<<<<< HEAD
 # This function checks the r_sqr for a simple linear model for each value
+=======
+# Heatmap add any additional insite?
+heatmap(cor_matrix, scale = 'column')
+library(GGally)
+ggcorr(Ames)
+
+# This function checks the t-val for a simple linear model for each value
+>>>>>>> 97a65b9971328f026ee9ae4b173226a0dc6f7f27
 # It should not be used as is and needs added complexity to be of value.
 # Good for parring down data as as first pass.
 
@@ -223,6 +292,7 @@ for (parameter in c(1:34)){
   }
 }
 
+<<<<<<< HEAD
 
 test_model = lm(SalePrice ~ LotFrontage + LotArea + YearBuilt + YearRemodAdd +
                   MasVnrArea + BsmtFinSF1 + BsmtUnfSF + TotalBsmtSF + X1stFlrSF +
@@ -256,3 +326,39 @@ get_rmse(lm.fit.All, data = test_data,response = "SalePrice")
 
 
 
+=======
+# Drop the colnames displayed when this is run and repeat
+
+
+# Fit
+lm.ryan = lm(SalePrice ~ GrLivArea + FullBath + LotFrontage + LotArea + WoodDeckSF + 
+               GarageArea + GarageCars + YearRemodAdd:Fireplaces + TotRmsAbvGrd + BsmtFinSF1 +
+               TotalBsmtSF + BsmtUnfSF + X1stFlrSF + X2ndFlrSF + BsmtFullBath + HalfBath +
+               BedroomAbvGr + KitchenAbvGr + MasVnrArea + YearBuilt + ScreenPorch + YearRemodAdd , data=train_data)
+
+
+#get_rmse(model = lm.ryan, data = train_data, response = "SalePrice")
+get_rmse(model = lm.ryan, data = test_data, response = "SalePrice")
+
+
+
+
+#lm.full = lm(SalePrice ~ ., data = train_data)
+#lm.full
+summary(lm.ryan)
+
+
+
+
+install.packages("data.table")
+library(data.table)
+
+outlierReplace = function(dataframe, cols, rows, newValue = NA) {
+  if (any(rows)) {
+    set(dataframe, rows, cols, newValue)
+  }
+}
+
+
+outlierReplace(train_data, "SalePrice", which(train_data$SalePrice > 500000), NA)
+>>>>>>> 97a65b9971328f026ee9ae4b173226a0dc6f7f27
