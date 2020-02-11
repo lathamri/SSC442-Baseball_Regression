@@ -147,6 +147,8 @@ train_index = sample(num_obs, size = trunc(0.50 * num_obs))
 train_data = Ames[train_index, ]
 test_data = Ames[-train_index, ]
 
+test_data<- test_data[-seq(nrow(test_data),nrow(test_data)-0),]
+
 # Now we do some analysis on our training data to fit the model for predictions and 
 # analyze what RMSE does with more complexity
 fit_0 = lm(SalePrice ~ 1, data = train_data)
@@ -503,9 +505,62 @@ rmse(test_data$SalePrice, predict(test.lm.15, newdata=test_data))
 rmse(test_data$SalePrice, predict(lm.ryan, newdata=test_data))
 
 
+## Build check for poly and log on all values 
+
+MIN = Inf
+min_r_param = NULL
+min_r_param_int = NULL
+min_param_vec = c(2:34)
+min_regress_vec = c()
+while (length(min_param_vec)>17){
+  for (parameter in min_param_vec){
+    lm.fit.norm = lm(train_data$SalePrice ~ ., data=subset(train_data,
+                                           select = union(c(parameter), min_regress_vec)))
+    min_RMSE_norm = rmse(test_data$SalePrice, predict(lm.fit.norm, newdata=test_data))
+    if (min_RMSE_norm < MIN){
+      MIN = min_RMSE_norm
+      print(MIN)
+      min_r_param = colnames(train_data[c(parameter)])
+    }
+    lm.fit.int = lm(train_data$SalePrice ~ . +
+                      train_data[[colnames(train_data[parameter])]]:
+                      train_data[[colnames(train_data[parameter+1])]],
+                    data=subset(train_data,
+                                select = union(c(parameter), min_regress_vec)))
+    min_RMSE_int = rmse(test_data$SalePrice, predict(lm.fit.norm, newdata=test_data))
+    
+    print(union(c(parameter), min_regress_vec))
+    if (min_RMSE_int < MIN){
+      MIN = min_RMSE_norm
+      print(MIN)
+      min_r_param = colnames(train_data[c(parameter)])
+      min_r_param_int = colnames(train_data[c(parameter+1)])
+      print(min_r_param)
+      print(min_r_param_int)
+    }
+  }
+  min_param_vec = min_param_vec[min_param_vec!=grep(min_r_param, colnames(train_data))]
+  min_regress_vec = append(min_regress_vec, grep(min_r_param, colnames(train_data)))
+  print('Added Regressor')
+}
 
 
 
+
+
+yyy = lm(train_data$SalePrice ~ ., data=subset(train_data, select=c(14,4,24,20,15,5,22,
+                                                                  6,30,26,16,18,29,32,34)))
+
+rmse(train_data$SalePrice, predict(yyy, newdata=train_data))
+
+add_var_rmse = lm(train_data$SalePrice ~ . + 
+                    train_data$BsmtUnfSF:train_data$BsmtFullBath+
+                    train_data$YearBuilt:train_data$EnclosedPorch+
+                    train_data$YearBuilt:train_data$GarageYrBlt+
+                    train_data$TotalBsmtSF:train_data$X1stFlrSF,
+                  data = subset(train_data, select=c(14,10,4,19,25,20,
+                                                     7,5,3,6,22,21,24,
+                                                     2,26)))
 
 
 
