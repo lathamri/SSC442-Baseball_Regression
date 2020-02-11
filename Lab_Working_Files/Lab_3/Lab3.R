@@ -313,6 +313,8 @@ lines(model_complexity_all, test_rmse_all, type = "b", col = "darkorange")
 
 # TESTING LINEAR MODELS WITH LOOPS #
 
+# Uses R^2 as an evaluator
+
 MAX = -Inf
 max_r_param = NULL
 param_vec = c(2:34)
@@ -331,137 +333,180 @@ while (length(param_vec)>3){
   regress_vec = append(regress_vec, grep(max_r_param, colnames(train_data)))
 }
 
-length(param_vec)
-print(regress_vec)
-length(regress_vec)
-
-test.lm.1 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14)))
-test.lm.2 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10)))
-test.lm.3 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4)))
-test.lm.4 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19)))
-test.lm.5 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24)))
-test.lm.6 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.1 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14)))
+test.lm.2 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10)))
+test.lm.3 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4)))
+test.lm.4 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19)))
+test.lm.5 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24)))
+test.lm.6 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                   7)))
-test.lm.7 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.7 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                   7, 5)))
-test.lm.8 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.8 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                   7, 5, 20)))
-test.lm.9 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.9 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                   7, 5, 20, 3)))
-test.lm.10 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.10 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22)))
-test.lm.11= lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.11= lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                   7, 5, 20, 3, 22, 6)))
-test.lm.12 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.12 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6, 
                                                                    2)))
-test.lm.13 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.13 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6, 
                                                                    2, 26)))
-test.lm.14 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.14 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6, 
                                                                    2, 26, 25)))
-test.lm.15 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.15 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21)))
-test.lm.16 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.16 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33)))
-test.lm.17 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.17 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8)))
-test.lm.18 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.18 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28)))
-test.lm.19 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.19 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13)))
-test.lm.20 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.20 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16)))
-test.lm.21 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.21 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30)))
-test.lm.22 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.22 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11)))
-test.lm.23 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.23 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11, 
                                                                    18)))
-test.lm.24 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.24 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11, 
                                                                    18, 31)))
-test.lm.25 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.25 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11, 
                                                                    18, 31, 15)))
-test.lm.26 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.26 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11, 
                                                                    18, 31, 15, 17)))
-test.lm.27 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.27 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11, 
                                                                    18, 31, 15, 17, 23)))
 
-test.lm.28 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.28 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11, 
                                                                    18, 31, 15, 17, 23, 
                                                                    34)))
-test.lm.29 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.29 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11, 
                                                                    18, 31, 15, 17, 23, 
                                                                    34, 32)))
-test.lm.30 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.30 = lm(SalePrice ~ ., data = subset(train_data, select = c(35, 14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11, 
                                                                    18, 31, 15, 17, 23, 
                                                                    34, 32, 27)))
-test.lm.31 = lm(SalePrice ~ ., data = subset(test_data, select = c(35, 14, 10, 4, 19, 24,
+test.lm.31 = lm(train_data$SalePrice ~ ., data = subset(train_data, select = c(14, 10, 4, 19, 24,
                                                                    7, 5, 20, 3, 22, 6,
                                                                    2, 26, 25, 21, 33, 8,
                                                                    28, 13, 16, 30, 11, 
                                                                    18, 31, 15, 17, 23, 
                                                                    34, 32, 27, 29)))
 
+rmse(test_data$SalePrice, predict(test.lm.15, newdata=test_data))
 
-test_model_all = c(test.lm.1, test.lm.2, test.lm.3, test.lm.4, test.lm.5,
-                   test.lm.6, test.lm.7, test.lm.8, test.lm.9, test.lm.10,
-                   test.lm.11, test.lm.12, test.lm.13, test.lm.14, test.lm.15,
-                   test.lm.16, test.lm.17, test.lm.18, test.lm.19, test.lm.20,
-                   test.lm.21, test.lm.22, test.lm.23, test.lm.24, test.lm.25,
-                   test.lm.26, test.lm.27, test.lm.28, test.lm.29, test.lm.30,
-                   test.lm.31)
+## MODEL WITH RMSE MIN
 
-rmse(test_data$SalePrice, predict(test.lm.31))
-sd(test_data$SalePrice)
-summary(test.lm.31)
+# This model gives linear models with of increasingly smaller RMSE.
 
-length(predict(test.lm.33))
-length(train_data$SalePrice)
+MIN = Inf
+min_r_param = NULL
+min_param_vec = c(2:34)
+min_regress_vec = c(35)
+while (length(min_param_vec)>17){
+  for (parameter in min_param_vec){
+    lm.fit = lm(SalePrice ~ ., data=subset(train_data,
+                                           select = union(c(parameter), min_regress_vec)))
+    min_RMSE = rmse(train_data$SalePrice, predict(lm.fit, newdata=train_data))
+    print(union(c(parameter), min_regress_vec))
+    if (min_RMSE < MIN){
+      MIN = min_RMSE
+      print(MIN)
+      min_r_param = colnames(train_data[c(parameter)])
+    }
+  }
+  min_param_vec = min_param_vec[min_param_vec!=grep(min_r_param, colnames(train_data))]
+  min_regress_vec = append(min_regress_vec, grep(min_r_param, colnames(train_data)))
+  print('Added Regressor')
+}
 
-get_rmse(model = test.lm.33, data = test_data, response = "SalePrice")
+length(min_param_vec)
+length(min_regress_vec)
+print(min_regress_vec)
 
-train_rmse_all = sapply(test_model_all, get_rmse, data = train_data, response = "SalePrice")
-test_rmse_all = sapply(test_model_all, get_rmse, data = test_data, response = "SalePrice")
-model_complexity_all = sapply(test_model_all, get_complexity)
+rmse_min_lm_fit = lm(train_data$SalePrice ~ .,
+                      data = subset(train_data, select=c(14,10,4,19,25,20,
+                                                         7,5,3,6,22,21,24,
+                                                         2,26)))
+
+rmse_min_lm_fit1 = lm(train_data$SalePrice ~ .,
+                     data = subset(train_data, select=c(14,10,4,19,25,20,
+                                                       7,5,3,6,22,21,24,
+                                                       2,26,8,13)))
+
+rmse_min_lm_fit2 = lm(train_data$SalePrice ~ .,
+                     data = subset(train_data, select=c(14,10,4,19,25,20,
+                                                        7,5,3,6,22,21,24,
+                                                        2,26,8,13,30,28,33,
+                                                        12,16,18)))
+rmse_min_lm_fit3 = lm(train_data$SalePrice ~ .,
+                      data = subset(train_data, select=c(14,10,4,19,25,20,
+                                                         7,5,3,6,22,21,24,
+                                                         2,26,8,13,30,28,33,
+                                                         12,16,18,31,15,23,17,32,27,34)))
+
+length(c(14,10,4,19,25,20,
+         7,5,3,6,22,21,24,
+         2,26))
+
+rmse(test_data$SalePrice, predict(rmse_min_lm_fit, newdata=test_data))
+rmse(test_data$SalePrice, predict(rmse_min_lm_fit1, newdata=test_data))
+rmse(test_data$SalePrice, predict(rmse_min_lm_fit2, newdata=test_data))
+rmse(test_data$SalePrice, predict(rmse_min_lm_fit3, newdata=test_data))
+rmse(test_data$SalePrice, predict(test.lm.15, newdata=test_data))
+rmse(test_data$SalePrice, predict(lm.ryan, newdata=test_data))
+
+
+
+
+
+
 
 
 
