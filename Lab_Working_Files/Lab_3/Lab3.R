@@ -512,7 +512,7 @@ min_r_param = NULL
 min_r_param_int = NULL
 min_param_vec = c(2:34)
 min_regress_vec = c()
-while (length(min_param_vec)>17){
+while (length(min_param_vec)>15){
   for (parameter in min_param_vec){
     lm.fit.norm = lm(train_data$SalePrice ~ ., data=subset(train_data,
                                            select = union(c(parameter), min_regress_vec)))
@@ -527,16 +527,28 @@ while (length(min_param_vec)>17){
                       train_data[[colnames(train_data[parameter+1])]],
                     data=subset(train_data,
                                 select = union(c(parameter), min_regress_vec)))
-    min_RMSE_int = rmse(test_data$SalePrice, predict(lm.fit.norm, newdata=test_data))
-    
-    print(union(c(parameter), min_regress_vec))
+    min_RMSE_int = rmse(test_data$SalePrice, predict(lm.fit.int, newdata=test_data))
     if (min_RMSE_int < MIN){
-      MIN = min_RMSE_norm
+      MIN = min_RMSE_int
       print(MIN)
       min_r_param = colnames(train_data[c(parameter)])
       min_r_param_int = colnames(train_data[c(parameter+1)])
       print(min_r_param)
       print(min_r_param_int)
+      print('interaction')
+    }
+    lm.fit.sqrt = lm(train_data$SalePrice ~ . +
+                      sqrt(train_data[[colnames(train_data[parameter])]]),
+                      data=subset(train_data,
+                                select = union(c(parameter), min_regress_vec)))
+    min_RMSE_sqrt = rmse(test_data$SalePrice, predict(lm.fit.sqrt, newdata=test_data))
+    print(union(c(parameter), min_regress_vec))
+    if (min_RMSE_sqrt < MIN){
+      MIN = min_RMSE_sqrt
+      print(MIN)
+      min_r_param = colnames(train_data[c(parameter)])
+      print(min_r_param)
+      print('sqrt')
     }
   }
   min_param_vec = min_param_vec[min_param_vec!=grep(min_r_param, colnames(train_data))]
@@ -544,13 +556,21 @@ while (length(min_param_vec)>17){
   print('Added Regressor')
 }
 
+# Overfits a little
+yyy = lm(train_data$SalePrice ~ . + 
+           BsmtHalfBath:BsmtFullBath+
+           sqrt(Fireplaces)+
+           train_data$BsmtFinSF2:train_data$BsmtUnfSF+
+           sqrt(WoodDeckSF)+
+           train_data$YearBuilt:train_data$EnclosedPorch+
+           train_data$YearBuilt:train_data$GarageYrBlt,
+         data=subset(train_data, select=c(14,4,24,20,15,5,22,6,30,26,16,18,29,32,34)))
 
+# Best model yet; tests to 47472
+y = lm(train_data$SalePrice ~ .,
+         data=subset(train_data, select=c(14,4,24,20,15,5,22,6,30,26,16,18,29,32,34)))
 
-
-
-yyy = lm(train_data$SalePrice ~ ., data=subset(train_data, select=c(14,4,24,20,15,5,22,
-                                                                  6,30,26,16,18,29,32,34)))
-
+rmse(test_data$SalePrice, predict(yyy, newdata=test_data))
 rmse(train_data$SalePrice, predict(yyy, newdata=train_data))
 
 add_var_rmse = lm(train_data$SalePrice ~ . + 
@@ -558,9 +578,18 @@ add_var_rmse = lm(train_data$SalePrice ~ . +
                     train_data$YearBuilt:train_data$EnclosedPorch+
                     train_data$YearBuilt:train_data$GarageYrBlt+
                     train_data$TotalBsmtSF:train_data$X1stFlrSF,
-                  data = subset(train_data, select=c(14,10,4,19,25,20,
+                  data = subset(train_data, select=c(14,10,19,4,25,20,
                                                      7,5,3,6,22,21,24,
                                                      2,26)))
+
+rmse(test_data$SalePrice, predict(add_var_rmse, newdata=test_data))
+rmse(train_data$SalePrice, predict(add_var_rmse, newdata=train_data))
+
+
+
+
+
+
 
 
 
