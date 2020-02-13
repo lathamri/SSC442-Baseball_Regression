@@ -611,8 +611,8 @@ add_var_rmse = lm(train_data$SalePrice ~ . +
 rmse(test_data$SalePrice, predict(add_var_rmse, newdata=test_data))
 rmse(train_data$SalePrice, predict(add_var_rmse, newdata=train_data))
 
-
-
+# Graph for the best model
+plot(y)
 
 
 
