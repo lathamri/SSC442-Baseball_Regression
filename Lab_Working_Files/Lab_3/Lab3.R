@@ -507,21 +507,40 @@ rmse(test_data$SalePrice, predict(lm.ryan, newdata=test_data))
 
 ## Build check for poly and log on all values 
 
+# Primary Function
+
+# Initialze some data storage variables
 MIN = Inf
 min_r_param = NULL
 min_r_param_int = NULL
+
+# Initialize our parameter vector, for tracking which parameters we 
+# should check and a regression vector for storing which ones 
+# do the best.
 min_param_vec = c(2:34)
 min_regress_vec = c()
+
+# Loops over our parameters until we have a specified amount left.
 while (length(min_param_vec)>15){
+  # Grabs our parameter of interest
   for (parameter in min_param_vec){
+    # Creates a linear model of our parameters unioned with any parameters
+    # that have already been placed into our regression. For example 
+    # the first run it creates a model with only one regressor on salesprice
+    # then once it finds the best one it adds this to our regressor vector
+    # and removes it from the check parameter vector.
     lm.fit.norm = lm(train_data$SalePrice ~ ., data=subset(train_data,
                                            select = union(c(parameter), min_regress_vec)))
+    # Find the RMSE for our linear model
     min_RMSE_norm = rmse(test_data$SalePrice, predict(lm.fit.norm, newdata=test_data))
+    # Check if the RMSE we just found is less than our minimum RMSE for this loop
+    # If it is then update the min and parameter holders. Otherwise pass.
     if (min_RMSE_norm < MIN){
       MIN = min_RMSE_norm
       print(MIN)
       min_r_param = colnames(train_data[c(parameter)])
     }
+    # Same as above but with interaction variables
     lm.fit.int = lm(train_data$SalePrice ~ . +
                       train_data[[colnames(train_data[parameter])]]:
                       train_data[[colnames(train_data[parameter+1])]],
@@ -537,6 +556,8 @@ while (length(min_param_vec)>15){
       print(min_r_param_int)
       print('interaction')
     }
+    # Same as above but with square root. Used sqrt instead of log because of 
+    # 0 data.
     lm.fit.sqrt = lm(train_data$SalePrice ~ . +
                       sqrt(train_data[[colnames(train_data[parameter])]]),
                       data=subset(train_data,
@@ -551,6 +572,9 @@ while (length(min_param_vec)>15){
       print('sqrt')
     }
   }
+  # Once we loop over all parameters we take the one that lowers RMSE the most 
+  # and remove it from the parameter check vector and add it to the regression vector
+  # in these two calls.
   min_param_vec = min_param_vec[min_param_vec!=grep(min_r_param, colnames(train_data))]
   min_regress_vec = append(min_regress_vec, grep(min_r_param, colnames(train_data)))
   print('Added Regressor')
@@ -573,6 +597,8 @@ y = lm(train_data$SalePrice ~ .,
 rmse(test_data$SalePrice, predict(yyy, newdata=test_data))
 rmse(train_data$SalePrice, predict(yyy, newdata=train_data))
 
+
+# Garbage that we made, it's nice garbage tho.
 add_var_rmse = lm(train_data$SalePrice ~ . + 
                     train_data$BsmtUnfSF:train_data$BsmtFullBath+
                     train_data$YearBuilt:train_data$EnclosedPorch+
