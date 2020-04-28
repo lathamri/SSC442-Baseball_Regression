@@ -1,6 +1,6 @@
 ---
 title: "SSC442_Final"
-author: "Riley Latham"
+author: "Riley Latham, Kendall Uckele, Ryan Granet, Zoe Xu"
 output: pdf_document
 ---
 
